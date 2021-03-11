@@ -1,5 +1,4 @@
 # local package
--e .
 
 scikit-learn==0.22.1
 
