@@ -6,7 +6,7 @@ import pandas as pd
 
 app = FastAPI()
 
-#models = load('../models/.joblib')
+models = load('../models/pytorch_beer_best_model.pt')
 
 @app.get("/")
 def read_root():
@@ -14,21 +14,21 @@ def read_root():
 
 
 @app.get('/health', status_code=200)
-async def healthcheck():
+def healthcheck():
     return 'The Beer app is ready to run'
 
-def format_features(b_name: str, r_aroma: int, r_appearance: int, r_palate: int, r_taste: int):
+def format_features(Brewery_Name: str, Review_Aroma: int, Review_Appearance: int, Review_Palate: int, Review_Taste: int):
   return {
-        'Brewery Name': [b_name],
-        'Review Aroma': [r_aroma],
-        'Review Appearance': [r_appearance],
-        'Review Palate': [r_palate],
-        'Review Taste': [r_taste]
+        'Brewery Name': [Brewery_Name],
+        'Review Aroma': [Review_Aroma],
+        'Review Appearance': [Review_Appearance],
+        'Review Palate': [Review_Palate],
+        'Review Taste': [Review_Taste]
     }
 
 @app.post("/beer/type/")
-def predict(b_name: str, r_aroma: int, r_appearance: int, r_palate: int, r_taste: int):
-    features = format_features(b_name, r_aroma, r_appearance, r_palate, r_taste)
+def predict(Brewery_Name: str, Review_Aroma: int, Review_Appearance: int, Review_Palate: int, Review_Taste: int):
+    features = format_features(Brewery_Name, Review_Aroma, Review_Appearance, Review_Palate, Review_Taste)
     obs = pd.DataFrame(features)
     pred = models.predict(obs)
     return JSONResponse(pred.tolist())
