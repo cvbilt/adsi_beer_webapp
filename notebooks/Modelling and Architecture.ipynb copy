@@ -1,0 +1,277 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Launch magic commands to automatically reloads modules\n",
+    "%load_ext autoreload\n",
+    "%autoreload 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['/home/jovyan/work/notebooks',\n",
+       " '/home/jovyan/work/notebooks',\n",
+       " '/home/jovyan/work',\n",
+       " '/opt/conda/lib/python37.zip',\n",
+       " '/opt/conda/lib/python3.7',\n",
+       " '/opt/conda/lib/python3.7/lib-dynload',\n",
+       " '',\n",
+       " '/opt/conda/lib/python3.7/site-packages',\n",
+       " '/opt/conda/lib/python3.7/site-packages/IPython/extensions',\n",
+       " '/home/jovyan/.ipython']"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Checking the system path\n",
+    "\n",
+    "import sys\n",
+    "sys.path"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# import necessary packages\n",
+    "\n",
+    "import pandas as pd\n",
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Load datasets"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Manually"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# load the necessary files\n",
+    "\n",
+    "X_train = pd.read_csv('../data/processed/X_train.csv')\n",
+    "X_val = pd.read_csv('../data/processed/X_val.csv')\n",
+    "y_train= pd.read_csv('../data/processed/y_train.csv')\n",
+    "y_val= pd.read_csv('../data/processed/y_val.csv')\n",
+    "X_test= pd.read_csv('../data/processed/X_test.csv')\n",
+    "y_test= pd.read_csv('../data/processed/y_test.csv')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Using functions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# If you save sets manually, run the Manual Load. Otherwise, if you save using functions, load using functions.\n",
+    "\n",
+    "from sets import load_sets\n",
+    "\n",
+    "X_train, y_train, X_val, y_val, X_test, y_test = load_sets(path='../data/processed/')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Base Model"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Dummy Classifier"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "DummyClassifier(constant=None, random_state=123, strategy='uniform')"
+      ]
+     },
+     "execution_count": 22,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from sklearn.dummy import DummyClassifier\n",
+    "\n",
+    "# Create dummy classifer\n",
+    "dummy = DummyClassifier(strategy='uniform', random_state=123)\n",
+    "\n",
+    "# \"Train\" model\n",
+    "dummy.fit(X_train, y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# predictions\n",
+    "y_train_preds = dummy.predict(X_train)\n",
+    "y_val_preds = dummy.predict(X_val)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Dummy score: 0.009657683999789264\n",
+      "Train accuracy score: 0.009623679872152574\n",
+      "Validation accuracy score: 0.009782809124914388\n",
+      "Train accuracy score: 0.0116327726933594\n",
+      "Validation accuracy score: 0.011816157961012324\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.metrics import roc_auc_score\n",
+    "from sklearn.metrics import accuracy_score\n",
+    "from sklearn.metrics import f1_score\n",
+    "\n",
+    "# Get accuracy score\n",
+    "\n",
+    "print('Dummy score:', dummy.score(X_test, y_test))\n",
+    "print('Train accuracy score:', accuracy_score(y_train,y_train_preds))\n",
+    "print('Validation accuracy score:', accuracy_score(y_val,y_val_preds))\n",
+    "print('Train accuracy score:', f1_score(y_train,y_train_preds, average=\"weighted\"))\n",
+    "print('Validation accuracy score:', f1_score(y_val,y_val_preds, average=\"weighted\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Using Null Model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Import class and predict\n",
+    "\n",
+    "from null import NullModel\n",
+    "base_model = NullModel(target_type=\"classification\")\n",
+    "y_base = base_model.fit_predict(y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Accuracy Training: 0.07444192974099043\n",
+      "F1 Training: 0.010315310209270104\n"
+     ]
+    }
+   ],
+   "source": [
+    "from performance import print_class_perf\n",
+    "\n",
+    "print_class_perf(y_preds=y_base, y_actuals=y_train, set_name='Training', average='weighted')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Define Architecture"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import torch\n",
+    "import torch.nn as nn\n",
+    "import torch.nn.functional as F"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
