@@ -6,7 +6,7 @@ import pandas as pd
 
 app = FastAPI()
 
-#gmm_pipe 
+#models = load('../models/.joblib')
 
 @app.get("/")
 def read_root():
@@ -14,24 +14,24 @@ def read_root():
 
 
 @app.get('/health', status_code=200)
-def healthcheck():
-    return 'Returning status code 200 with a string with a welcome message of your choice'
+async def healthcheck():
+    return 'The Beer app is ready to run'
 
-def format_features(genre: str,	age: int, income: int, spending: int):
+def format_features(b_name: str, r_aroma: int, r_appearance: int, r_palate: int, r_taste: int):
   return {
-        'Gender': [genre],
-        'Age': [age],
-        'Annual Income (k$)': [income],
-        'Spending Score (1-100)': [spending]
+        'Brewery Name': [b_name],
+        'Review Aroma': [r_aroma],
+        'Review Appearance': [r_appearance],
+        'Review Palate': [r_palate],
+        'Review Taste': [r_taste]
     }
 
 @app.post("/beer/type/")
-def predict(genre: str,	age: int, income: int, spending: int):
-    features = format_features(genre,	age, income, spending)
+def predict(b_name: str, r_aroma: int, r_appearance: int, r_palate: int, r_taste: int):
+    features = format_features(b_name, r_aroma, r_appearance, r_palate, r_taste)
     obs = pd.DataFrame(features)
-    pred = gmm_pipe.predict(obs)
-    # return JSONResponse(pred.tolist())
-    return 'Returning prediction for a single input only & for a multiple inputs'
+    pred = models.predict(obs)
+    return JSONResponse(pred.tolist())
 
 
 @app.get("/model/architecture/")
