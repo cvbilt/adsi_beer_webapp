@@ -8,6 +8,6 @@ COPY ./app /app
 COPY ./models /models
 CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-c", "/gunicorn_conf.py", "main:app"]
 
-ENV PYTHONPATH "${PYTHONPATH}:/home/jovyan/work"
-RUN echo "export PYTHONPATH=/home/jovyan/work" >> ~/.bashrc
-WORKDIR /home/jovyan/work
+#ENV PYTHONPATH "${PYTHONPATH}:/home/jovyan/work"
+#RUN echo "export PYTHONPATH=/home/jovyan/work" >> ~/.bashrc
+#WORKDIR /home/jovyan/work
